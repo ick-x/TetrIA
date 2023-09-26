@@ -1,13 +1,14 @@
 import pygame
+import numpy as np
 
 
 class Piece:
     x = 0
-    y = 0
+    y = 1
     grid = [[True, True, True], [False, False, True]]
     color = pygame.Color(0, 0, 0)
 
-    def __init__(self, x=0, y=2, grid=[[True, True, True], [False, False, True]], color=pygame.Color(0, 0, 0)):
+    def __init__(self, x=0, y=0, grid=[[True, True, True], [False, False, True]], color=pygame.Color(50, 50, 50)):
         self.x = x
         self.y = y
         self.grid = grid
@@ -19,14 +20,18 @@ class Piece:
             for j in range(len(self.grid[i])):
                 if self.grid[i][j]:
                     rect = pygame.Rect(marge[0] + (self.x + j) * tile_size,
-                                       marge[1] + (self.y - piece_height + i) * tile_size, tile_size, tile_size)
+                                       marge[1] + (self.y - piece_height + i+1) * tile_size, tile_size, tile_size)
                     pygame.draw.rect(screen, self.color, rect)
+                    
+    def rotate(self):
+        pass
 
 
 class Grid:
     x = 12
     y = 22
     pieces = [Piece(0, 0, [[True, True, True, True]], pygame.Color(255, 0, 0)), Piece()]
+    pieces2 = [Piece(0, 0, [[False, True, True, True]], pygame.Color(255, 0, 0)), Piece()]
     gridBorderWidth = 4
 
     grid_bool = []
@@ -52,22 +57,22 @@ class Grid:
         self.pieces.append(Piece())
 
     def check_collision(self, piece):
-        if piece.y >= 22:
+        if piece.y >= self.y:
             self.save_piece()
             self.generate_piece()
-            return
+            return True
 
         x = 0
         for line in piece.grid:
-            y = -len(piece.grid) + 1
+            y = -len(piece.grid)
             for bool in line:
                 if bool:
-                    if piece.y == self.y or self.grid_bool[y + 1 + int(piece.y)][x + int(piece.x)]:
+                    if self.grid_bool[y + 1 + int(piece.y)][x + int(piece.x)]:
                         self.save_piece()
                         self.generate_piece()
-                        return
-            y += 1
-        x += 1
+                        return True
+                y += 1
+            x += 1
 
     def paint(self, screen, tile_size):
         pos_x = (screen.get_width() - tile_size * self.x) / 2
@@ -84,9 +89,7 @@ class Grid:
         self.check_collision(self.pieces[1])
 
         for y in range(len(self.grid_bool)):
-            print("okk")
             for x in range(len(self.grid_bool[0])):
-                print("ok")
                 if (self.grid_bool[y][x]):
                     pygame.draw.rect(screen, self.grid_color[y][x], pygame.Rect(
                         pos_x + (x) * tile_size, (y-1) * tile_size + pos_y, tile_size, tile_size
@@ -102,6 +105,21 @@ class Grid:
         if piece.x + len(piece.grid[0]) < self.x:
             piece.x += 1
 
+    def move_down(self):
+        piece = self.pieces[1]
+        if piece.y > 0:
+            piece.y += 0.25
+            
+    def move_instant(self):
+        piece = self.pieces[1]
+        while not self.check_collision(self.pieces[1]):
+            piece.y += 0.1          
+        
+    def rotate(self):
+        grid = self.pieces[1].grid
+        array = np.array([grid[i]for i in range(len(grid))])
+        self.pieces[1].grid = array.T
+        
     def update(self, screen, tile_size):
         if self.pieces[1].y < self.y:
             self.pieces[1].y += 0.1

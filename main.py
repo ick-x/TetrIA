@@ -11,6 +11,9 @@ dt = 0
 
 player_pos = pygame.Vector2(0, screen.get_height() / 2)
 
+left = False
+right = False
+grid = t.Grid()
 while running:
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
@@ -20,17 +23,19 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("blue")
-    t.Grid().paint(screen,30,[10,20])
-    t.Piece().paint(50,[100,100],screen)
+    grid.update(screen, 30)
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_z]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
+
+    if keys[pygame.K_LEFT] and not left:
+        grid.move_left()
+        left = True
+    if not keys[pygame.K_LEFT] and left:
+        left = False
+    if keys[pygame.K_RIGHT] and not right:
+        grid.move_right()
+        right = True
+    if not keys[pygame.K_RIGHT] and right:
+        right = False
     
 
     # flip() the display to put your work on screen

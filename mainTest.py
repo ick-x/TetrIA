@@ -13,10 +13,10 @@ running = True
 ct = 0
 
 while running:
-    if ct ==1000:
+    if ct == 250:
         ct = 0
         grid.move_down()
-    ct+=1
+    ct += 1
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False

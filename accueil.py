@@ -1,6 +1,6 @@
 import pygame as pygame
 import pygame.font
-
+import main
 pygame.init()
 
 largeur_ecran = 1280
@@ -82,6 +82,7 @@ while en_cours:
             if bouton_start.collidepoint(event.pos):
                 # Action lorsque le bouton "Start" est cliqué
                 print("Bouton Start cliqué")
+                main.main()
             elif bouton_record.collidepoint(event.pos):
                 # Action lorsque le bouton "Record" est cliqué
                 print("Bouton Record cliqué")

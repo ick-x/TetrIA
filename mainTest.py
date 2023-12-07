@@ -1,28 +1,10 @@
 import tetris2 as tt
 import pygame as pg
 
-grid = tt.Grid()
-grid.move_down()
-grid.move_down()
 
-pg.init()
-screen = pg.display.set_mode((960, 540))
-
-running = True
-
-ct = 0
-
-while running:
-    if ct == 250:
-        ct = 0
-        grid.move_down()
-    ct += 1
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
-
-    grid.paint(screen, 30)
-
-    pg.display.flip()
-
-pg.quit()
+piece = tt.Piece([[True, True, True], [False, True, False]], pg.Color(175, 175, 255), 12)
+print(piece.toString())
+piece.rotate_right()
+print(piece.toString())
+piece.rotate_right()
+print(piece.toString())

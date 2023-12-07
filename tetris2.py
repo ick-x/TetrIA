@@ -74,7 +74,7 @@ def get_pieces_list(grid_width):
 def get_random_piece(grid_width):
     piece_list = get_pieces_list(grid_width)
     piece = piece_list[random.randint(0, len(piece_list) - 1)]
-    nb_rota = random.randint(0,3)
+    nb_rota = random.randint(0, 3)
     for i in range(nb_rota):
         piece.rotate_right()
     return piece
@@ -176,6 +176,7 @@ class Grid:
                                  screen,
                                  self.animation_counter * tile_size / self.animation_length, self.shadow)
         self.paint_grid(tile_size, (pos_x, pos_y), screen)
+        self.next_piece.paint(tile_size, ((pos_x - tile_size * (self.next_piece.x + 7), pos_y)), screen, 0, self.shadow)
 
     def move_left(self):
         piece = self.current_piece

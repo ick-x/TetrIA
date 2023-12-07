@@ -26,7 +26,7 @@ def main():
                 running = False
 
         # fill the screen with a color to wipe away anything from last frame
-        screen.fill("black")
+        screen.fill(pygame.Color(155,155,155))
         grid.update(screen, 30)
         keys = pygame.key.get_pressed()
 

@@ -70,3 +70,5 @@ def main():
         # independent physics.
         dt = clock.tick(60) / 1000
     pygame.quit()
+
+main()

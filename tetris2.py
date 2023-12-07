@@ -1,14 +1,13 @@
 import random
-
-import numpy as np
 import pygame as pg
 
 
 class Piece:
-    grid = np.array([[True, False, True], [False, True, False]])
+    grid = []
     x = 0
     y = 0
     color = pg.Color(255, 0, 0)
+    border_size = 2
 
     def rotate_right(self):
         new_grid = [[False for i in range(len(self.grid))] for j in range(len(self.grid[0]))]
@@ -18,20 +17,20 @@ class Piece:
                 new_grid[new_height_matrix - x][y] = self.grid[y][x]
         self.grid = new_grid
 
-    def toString(self):
-        return ("(" + str(len(self.grid)) + "," + str(len(self.grid[0])) + ")", self.grid)
-
-    def paint(self, tile_size, marge, screen, padding_y):
+    def paint(self, tile_size, marge, screen, padding_y, shadow):
         marge_x, marge_y = marge
 
         for y in range(len(self.grid)):
             for x in range(len(self.grid[0])):
-                if (self.grid[y][x]):
+                if self.grid[y][x]:
                     coord_tile_x = (self.x + x) * tile_size + marge_x
                     coord_tile_y = (self.y + y) * tile_size + marge_y + padding_y
-                    pg.draw.rect(screen, self.color, pg.Rect(coord_tile_x, coord_tile_y, tile_size, tile_size))
+                    pg.draw.rect(screen, get_border_color(shadow, self.color),
+                                 pg.Rect(coord_tile_x, coord_tile_y, tile_size, tile_size))
+                    pg.draw.rect(screen, self.color, pg.Rect(coord_tile_x, coord_tile_y, tile_size - self.border_size,
+                                                             tile_size - self.border_size))
 
-    def __init__(self, grid, color, grid_width):
+    def __init__(self, grid, color, grid_width, ):
         self.y = 0
         self.x = int((grid_width - len(grid[0])) / 2)
         self.grid = grid
@@ -41,8 +40,50 @@ class Piece:
 
 def get_pieces_list(grid_width):
     return [
-        Piece([[True, True, True, True]], pg.Color(175, 175, 255), grid_width)
+        Piece([
+            [False, True, False, False],
+            [False, True, False, False],
+            [False, True, False, False],
+            [False, True, False, False]], pg.Color(0, 240, 240), grid_width),
+        Piece([
+            [True, True, False],
+            [False, True, False],
+            [False, True, False]], pg.Color(240, 160, 0), grid_width),
+        Piece([
+            [False, True, True],
+            [False, True, False],
+            [False, True, False]], pg.Color(0, 0, 240), grid_width),
+        Piece([
+            [False, True, False],
+            [True, True, False],
+            [False, True, False]], pg.Color(160, 0, 240), grid_width),
+        Piece([
+            [True, True],
+            [True, True]], pg.Color(240, 240, 0), grid_width),
+        Piece([
+            [True, False, False],
+            [True, True, False],
+            [False, True, False]], pg.Color(0, 240, 0), grid_width),
+        Piece([
+            [False, True, False],
+            [True, True, False],
+            [True, False, False]], pg.Color(240, 0, 0), grid_width),
     ]
+
+
+def get_random_piece(grid_width):
+    piece_list = get_pieces_list(grid_width)
+    piece = piece_list[random.randint(0, len(piece_list) - 1)]
+    nb_rota = random.randint(0,3)
+    for i in range(nb_rota):
+        piece.rotate_right()
+    return piece
+
+
+def get_border_color(shadow, color):
+    return pg.Color(0 if color.r < shadow else color.r - shadow,
+                    0 if color.g < shadow else color.g - shadow,
+                    0 if color.b < shadow else color.b - shadow)
 
 
 class Grid:
@@ -50,6 +91,8 @@ class Grid:
     x = 12
     y = 18
     gridBorderWidth = 4
+    shadow = 20
+    score = 0
 
     stocked_piece = None
 
@@ -58,23 +101,16 @@ class Grid:
     animation_length = 25
 
     def __init__(self):
-        self.grid_color = [[pg.Color(155, 155, 155) for i in range(self.x)] for j in range(self.y)]
+        self.square_border_size = 2
+        self.grid_color = [[pg.Color(155, 0, 0) if j == 0 else pg.Color(155, 155, 155) for i in range(self.x)] for j in
+                           range(self.y)]
 
-        self.current_piece = Piece([
-            [False, True, False, False],
-            [False, True, False, False],
-            [False, True, False, False],
-            [False, True, False, False]], pg.Color(175, 175, 255), self.x)
-        self.next_piece = Piece([
-            [False, True, False, False],
-            [False, True, False, False],
-            [False, True, False, False],
-            [False, True, False, False]], pg.Color(175, 175, 255), self.x)
-        pass
+        self.current_piece = get_random_piece(self.x)
+        self.next_piece = get_random_piece(self.x)
 
     def update_current_piece(self, pas):
         self.animation_counter = self.animation_counter + pas
-        if (self.animation_counter > self.animation_length):
+        if self.animation_counter > self.animation_length:
             self.current_piece.y += 1
             self.animation_counter = 0
 
@@ -138,15 +174,8 @@ class Grid:
         self.current_piece.paint(tile_size,
                                  (pos_x, pos_y),
                                  screen,
-                                 self.animation_counter * tile_size / self.animation_length)
+                                 self.animation_counter * tile_size / self.animation_length, self.shadow)
         self.paint_grid(tile_size, (pos_x, pos_y), screen)
-
-        pg.draw.rect(screen,
-                     pg.Color(0, 0, 0),
-                     pg.Rect(pos_x - self.gridBorderWidth,
-                             0,
-                             self.x * tile_size + self.gridBorderWidth * 2,
-                             pos_y - self.gridBorderWidth))
 
     def move_left(self):
         piece = self.current_piece
@@ -178,6 +207,7 @@ class Grid:
     def update(self, screen, tile_size):
         self.update_current_piece(1)
         self.check_collision_and_save()
+        self.check_full_line()
         self.paint(screen, tile_size)
 
     def paint_grid(self, tile_size, marge, screen):
@@ -188,13 +218,50 @@ class Grid:
                 if self.grid_color[y][x] != pg.Color(155, 155, 155, 255):
                     coord_tile_y = y * tile_size + marge_y
                     coord_tile_x = x * tile_size + marge_x
-                    pg.draw.rect(screen, self.grid_color[y][x],
+                    pg.draw.rect(screen,
+                                 get_border_color(self.shadow, self.grid_color[y][x]),
                                  pg.Rect(
                                      coord_tile_x,
                                      coord_tile_y,
                                      tile_size,
                                      tile_size))
 
+                    pg.draw.rect(screen,
+                                 self.grid_color[y][x],
+                                 pg.Rect(
+                                     coord_tile_x,
+                                     coord_tile_y,
+                                     tile_size - self.square_border_size,
+                                     tile_size - self.square_border_size))
+
     def check_collision_and_save(self):
         if self.check_collision():
             self.save_piece()
+
+    def check_full_line(self):
+        lines = []
+        for line in range(self.y):
+            full_line = True
+            for case in range(self.x):
+                if self.grid_color[line][case] == pg.Color(155, 155, 155):
+                    full_line = False
+                    break
+            if full_line:
+                lines.append(line)
+        nb_lines = len(lines)
+        for i in range(nb_lines):
+            self.grid_color.remove(self.grid_color[lines[i] - i])
+        self.grid_color = [
+            [pg.Color(155, 155, 155) for i in range(self.x)] if j < nb_lines else self.grid_color[j - nb_lines] for j in
+            range(self.y)]
+
+        if nb_lines > 0:
+            match nb_lines:
+                case 1:
+                    self.score += 40
+                case 2:
+                    self.score += 100
+                case 3:
+                    self.score += 300
+                case _:
+                    self.score += 1200

@@ -44,30 +44,7 @@ def get_pieces_list(grid_width):
             [False, True, False, False],
             [False, True, False, False],
             [False, True, False, False],
-            [False, True, False, False]], pg.Color(0, 240, 240), grid_width),
-        Piece([
-            [True, True, False],
-            [False, True, False],
-            [False, True, False]], pg.Color(240, 160, 0), grid_width),
-        Piece([
-            [False, True, True],
-            [False, True, False],
-            [False, True, False]], pg.Color(0, 0, 240), grid_width),
-        Piece([
-            [False, True, False],
-            [True, True, False],
-            [False, True, False]], pg.Color(160, 0, 240), grid_width),
-        Piece([
-            [True, True],
-            [True, True]], pg.Color(240, 240, 0), grid_width),
-        Piece([
-            [True, False, False],
-            [True, True, False],
-            [False, True, False]], pg.Color(0, 240, 0), grid_width),
-        Piece([
-            [False, True, False],
-            [True, True, False],
-            [True, False, False]], pg.Color(240, 0, 0), grid_width),
+            [False, True, False, False]], pg.Color(0, 240, 240), grid_width)
     ]
 
 
